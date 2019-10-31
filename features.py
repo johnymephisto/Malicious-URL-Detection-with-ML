@@ -4,7 +4,6 @@
 
 import whois # pip3 install python-whois
 import tldextract
-from pprint import pprint 
 import socket
 from collections import OrderedDict
 import dns.resolver # pip3 install dnspython
@@ -12,7 +11,7 @@ import dns.resolver # pip3 install dnspython
 
 def get_domain(subdomain):
     e = tldextract.extract(subdomain)
-    return f'{e.domain}.{e.suffix}'
+    return '{}.{}'.format(e.domain, e.suffix)
 
 
 def get_ns(domain):
@@ -36,11 +35,17 @@ class URLFeatures:
     
     @property
     def creation_date(self):
-        return self.whois.creation_date.strftime("%m/%d/%Y, %H:%M:%S")
+        if (isinstance(self.whois.creation_date, list)):
+            return self.whois.creation_date[0].strftime("%m/%d/%Y, %H:%M:%S")
+        else:
+            return self.whois.creation_date.strftime("%m/%d/%Y, %H:%M:%S")
     
     @property
     def expiration_date(self):
-        return self.whois.expiration_date.strftime("%m/%d/%Y, %H:%M:%S")
+        if (isinstance(self.whois.expiration_date, list)):
+            return self.whois.expiration_date[0].strftime("%m/%d/%Y, %H:%M:%S")
+        else:
+            return self.whois.expiration_date.strftime("%m/%d/%Y, %H:%M:%S")
     
     @property
     def whois_nameservers(self):
@@ -77,19 +82,16 @@ class URLFeatures:
     
     def to_dict(self):
         return OrderedDict({
-            'domain': obj.domain,
-            'creation_date': obj.creation_date,
-            'hosted_from': obj.hosted_from,
-            'expiration_date': obj.expiration_date,
-            'whois_nameservers': obj.whois_nameservers,
-            'actual_nameservers': obj.actual_nameservers,
-            'emails': obj.emails,
-            'name': obj.name
+            'domain': self.domain,
+            'creation_date': self.creation_date,
+            'hosted_from': self.hosted_from,
+            'expiration_date': self.expiration_date,
+            'whois_nameservers': self.whois_nameservers,
+            'actual_nameservers': self.actual_nameservers,
+            'emails': self.emails,
+            'name': self.name,
+            'country_tld': self.country_tld
         })
 
 
-url = 'http://sis.smu.edu.sg/sis-research-overview'
 
-obj = URLFeatures(url)
-
-pprint(obj.to_dict())
